@@ -1,3 +1,14 @@
 A light weight SRTE jQuery Plugin
 
 If for project you need simple rich text editor plugin, you are welcome!
+
+Settings:
+
+defautl options
+
+media_url - url to images folder
+content_css_url - url to css frame styles
+max_height - max iframe height
+iframe_height - default iframe height
+
+You can override default options in your project

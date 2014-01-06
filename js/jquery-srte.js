@@ -33,7 +33,7 @@
             }
 
             // already created? show/hide
-            if(iframe) {                
+            if(iframe) {
                 textarea.hide();
                 $(iframe).contents().find("body").html(content);
                 $(iframe).show();
@@ -47,11 +47,9 @@
             iframe.frameBorder=0;
             iframe.frameMargin=0;
             iframe.framePadding=0;
-            iframe.height=options.height;
+            iframe.height=options.iframe_height;
             if(textarea.attr('class'))
                 iframe.className = textarea.attr('class');
-            if(textarea.attr('id'))
-                iframe.id = element_id;
             if(textarea.attr('name'))
                 iframe.title = textarea.attr('name');
 
@@ -261,7 +259,7 @@
         media_url: "images/",
         content_css_url: "rte.css",        
         max_height: 350,
-        height : 150
+        iframe_height : 150
     }
 
 })(jQuery,window, document);

@@ -10,25 +10,14 @@ define( [ 'jquery' ], function($){
 */
 
 // define the rte light plugin
-(function($) {
+(function($,window, document, undefined) {
 
-if(typeof $.fn.rte === "undefined") {
+    $.fn.srte = function(options){
 
-    var defaults = {
-        media_url: "",
-        content_css_url: "rte.css",
-        dot_net_button_class: null,
-        max_height: 350
-    };
-
-    $.fn.rte = function(options){    	
-    $.fn.rte.html = function(iframe) {
-        return iframe.contentWindow.document.getElementsByTagName("body")[0].innerHTML;
-    };    
     // build main options before element iteration
-    var opts = $.extend(defaults, options);
+    var options = $.extend({},$.fn.srte.options, options);
 
-    // iterate and construct the RTEs
+    // iterate and construct the SRTEs
     return this.each( function() {
         var textarea = $(this);
         var iframe;
@@ -46,7 +35,6 @@ if(typeof $.fn.rte === "undefined") {
 
             // already created? show/hide
             if(iframe) {
-                console.log("already created");
                 textarea.hide();
                 $(iframe).contents().find("body").html(content);
                 $(iframe).show();
@@ -57,20 +45,20 @@ if(typeof $.fn.rte === "undefined") {
 
             // for compatibility reasons, need to be created this way
             iframe = document.createElement("iframe");
-            iframe.frameBorder=1;
+            iframe.frameBorder=0;
             iframe.frameMargin=0;
             iframe.framePadding=0;
-            iframe.height=200;
+            iframe.height=options.iframe_height;
             if(textarea.attr('class'))
                 iframe.className = textarea.attr('class');
-            if(textarea.attr('id'))
-                iframe.id = element_id;
             if(textarea.attr('name'))
-                iframe.title = textarea.attr('name');            
-            textarea.after(iframe);            
+                iframe.title = textarea.attr('name');
+
+            textarea.after(iframe);
+
             var css = "";
-            if(opts.content_css_url) {
-                css = "<link type='text/css' rel='stylesheet' href='" + opts.content_css_url + "' />";
+            if(options.content_css_url) {
+                css = "<link type='text/css' rel='stylesheet' href='" + options.content_css_url + "' />";
             }
 
             var doc = "<html><head>"+css+"</head><body class='frameBody'>"+content+"</body></html>";
@@ -78,20 +66,21 @@ if(typeof $.fn.rte === "undefined") {
                 $("#toolbar-" + element_id).remove();
                 textarea.before(toolbar());
                 // hide textarea
-                textarea.hide();                
+                textarea.hide();
+
             });
-        
+
         }
 
-        function tryEnableDesignMode(doc, callback) {        	
+        function tryEnableDesignMode(doc, callback) {
             if(!iframe) { return false; }
 
-            try {            	
-                iframe.contentWindow.document.open();                
+            try {
+                iframe.contentWindow.document.open();
                 iframe.contentWindow.document.write(doc);
-                iframe.contentWindow.document.close();                
+                iframe.contentWindow.document.close();
             } catch(error) {
-                console.log(error);
+                //console.log(error);
             }
             if (document.contentEditable) {
                 iframe.contentWindow.document.designMode = "On";
@@ -104,7 +93,7 @@ if(typeof $.fn.rte === "undefined") {
                     callback();
                     return true;
                 } catch (error) {
-                    console.log(error);
+                    //console.log(error);
                 }
             }
             setTimeout(function(){tryEnableDesignMode(doc, callback)}, 500);
@@ -126,7 +115,7 @@ if(typeof $.fn.rte === "undefined") {
 
         // create toolbar and bind events to it's elements
         function toolbar() {
-            var tb = $("<div class='rte-toolbar' id='toolbar-"+ element_id +"'><div>\
+            var tb = $("<div class='srte-toolbar' id='toolbar-"+ element_id +"'><div>\
                 <p>\
                     <select>\
                         <option value=''>Block style</option>\
@@ -136,14 +125,14 @@ if(typeof $.fn.rte === "undefined") {
                     </select>\
                 </p>\
                 <p>\
-                    <a href='#' class='bold'><img src='"+opts.media_url+"bold.gif' alt='bold' /></a>\
-                    <a href='#' class='italic'><img src='"+opts.media_url+"italic.gif' alt='italic' /></a>\
+                    <a href='#' class='bold'><img src='"+options.media_url+"bold.gif' alt='bold' /></a>\
+                    <a href='#' class='italic'><img src='"+options.media_url+"italic.gif' alt='italic' /></a>\
                 </p>\
                 <p>\
-                    <a href='#' class='unorderedlist'><img src='"+opts.media_url+"unordered.gif' alt='unordered list' /></a>\
-                    <a href='#' class='link'><img src='"+opts.media_url+"link.png' alt='link' /></a>\
-                    <a href='#' class='image'><img src='"+opts.media_url+"image.png' alt='image' /></a>\
-                    <a href='#' class='disable'><img src='"+opts.media_url+"close.gif' alt='close rte' /></a>\
+                    <a href='#' class='unorderedlist'><img src='"+options.media_url+"unordered.gif' alt='unordered list' /></a>\
+                    <a href='#' class='link'><img src='"+options.media_url+"link.png' alt='link' /></a>\
+                    <a href='#' class='image'><img src='"+options.media_url+"image.png' alt='image' /></a>\
+                    <a href='#' class='disable'><img src='"+options.media_url+"close.gif' alt='close rte' /></a>\
                 </p></div></div>");
 
             $('select', tb).change(function(){
@@ -170,7 +159,7 @@ if(typeof $.fn.rte === "undefined") {
 
             $('.disable', tb).click(function() {
                 disableDesignMode();
-                var edm = $('<a class="rte-edm" href="#">Enable design mode</a>');
+                var edm = $('<a class="srte-edm" href="#">Enable design mode</a>');
                 tb.empty().append(edm);
                 edm.click(function(e){
                     e.preventDefault();
@@ -181,18 +170,9 @@ if(typeof $.fn.rte === "undefined") {
                 return false;
             });
 
-            // .NET compatability
-            if(opts.dot_net_button_class) {
-                var dot_net_button = $(iframe).parents('form').find(opts.dot_net_button_class);
-                dot_net_button.click(function() {
-                    disableDesignMode(true);
-                });
-            // Regular forms
-            } else {
-                $(iframe).parents('form').submit(function(){
-                    disableDesignMode(true);
-                });
-            }
+            $(iframe).parents('form').submit(function(){
+                disableDesignMode(true);
+            });
 
             var iframeDoc = $(iframe.contentWindow.document);
 
@@ -209,7 +189,7 @@ if(typeof $.fn.rte === "undefined") {
                     var iframe_height = parseInt(iframe.style['height'])
                     if(isNaN(iframe_height))
                         iframe_height = 0;
-                    var h = Math.min(opts.max_height, iframe_height+body.scrollTop()) + 'px';
+                    var h = Math.min(options.max_height, iframe_height+body.scrollTop()) + 'px';
                     iframe.style['height'] = h;
                 }
                 return true;
@@ -271,13 +251,19 @@ if(typeof $.fn.rte === "undefined") {
         // enable design mode now
         enableDesignMode();
 
-    }); //return this.each
+    }); //return this.each    
     
     }; // rte
 
-} // if
+    // defautl options
+    $.fn.srte.options = {
+        media_url: "images/",
+        content_css_url: "rte.css",        
+        max_height: 350,
+        iframe_height : 150
+    }
 
-})($);
+})(jQuery,window, document);
 
 
 } );
