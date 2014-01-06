@@ -6,16 +6,10 @@
 * Distributed under the MIT License.
 */
 
+
 // define the srte light plugin
-(function($) {
-
-if(typeof $.fn.srte === "undefined") {
-
-    var defaults = {
-        media_url: "",
-        content_css_url: "rte.css",        
-        max_height: 350
-    };
+'use strict';
+;(function($,window, document, undefined) {
 
     $.fn.srte = function(options){
 
@@ -39,8 +33,7 @@ if(typeof $.fn.srte === "undefined") {
             }
 
             // already created? show/hide
-            if(iframe) {
-                console.log("already created");
+            if(iframe) {                
                 textarea.hide();
                 $(iframe).contents().find("body").html(content);
                 $(iframe).show();
@@ -54,7 +47,7 @@ if(typeof $.fn.srte === "undefined") {
             iframe.frameBorder=0;
             iframe.frameMargin=0;
             iframe.framePadding=0;
-            iframe.height=200;
+            iframe.height=options.height;
             if(textarea.attr('class'))
                 iframe.className = textarea.attr('class');
             if(textarea.attr('id'))
@@ -259,22 +252,16 @@ if(typeof $.fn.srte === "undefined") {
         // enable design mode now
         enableDesignMode();
 
-    }); //return this.each
-
-    //Globally overriding options
-    $.fn.srte.html = function(iframe) {
-        return iframe.contentWindow.document.getElementsByTagName("body")[0].innerHTML;
-    };
+    }); //return this.each    
+    
+    }; // rte
 
     // defautl options
     $.fn.srte.options = {
         media_url: "images/",
         content_css_url: "rte.css",        
-        max_height: 350
+        max_height: 350,
+        height : 150
     }
-    
-    }; // rte
 
-} // if
-
-})(jQuery);
+})(jQuery,window, document);
