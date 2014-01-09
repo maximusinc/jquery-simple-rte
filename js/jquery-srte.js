@@ -1,5 +1,5 @@
 /*
-* jQuery SRTE plugin 0.5.2 - create a simple rich text form for Mozilla, Opera, Safari and Internet Explorer
+* jQuery SRTE plugin 0.5.3 - create a simple rich text form for Mozilla, Opera, Safari and Internet Explorer
 *
 * Copyright (c) 2013
 * Distributed under the GPL Licenses.
@@ -18,26 +18,26 @@
 
     // iterate and construct the SRTEs
     return this.each( function() {
-        var textarea = $(this);
-        var iframe;
-        var element_id = textarea.attr("id");
+        // current textarea
+        var textarea = $(this),
+            // element id
+            element_id = textarea.attr("id"),
+            // iframe variable
+            iframe,
+            // toolbar
+            tb;            
 
         // enable design mode
         function enableDesignMode() {
 
-            var content = textarea.val();
-
-            // Mozilla needs this to display caret
-            if($.trim(content)=='') {
-                content = '<br />';
-            }
+            var content = textarea.val();       
 
             // already created? show/hide
             if(iframe) {
                 textarea.hide();
                 $(iframe).contents().find("body").html(content);
                 $(iframe).show();
-                $("#toolbar-" + element_id).remove();
+                $("#toolbar-" + element_id).remove();                
                 textarea.before(toolbar());
                 return true;
             }
@@ -95,7 +95,8 @@
                     //console.log(error);
                 }
             }
-            setTimeout(function(){tryEnableDesignMode(doc, callback)}, 500);
+             setTimeout(function(){tryEnableDesignMode(doc, callback)}, 50);
+
             return false;
         }
 
@@ -114,7 +115,7 @@
 
         // create toolbar and bind events to it's elements
         function toolbar() {
-            var tb = $("<div class='srte-toolbar' id='toolbar-"+ element_id +"'><div>\
+            tb = $("<div class='srte-toolbar' id='toolbar-"+ element_id +"'><div>\
                 <p>\
                     <select>\
                         <option value=''>Block style</option>\
@@ -158,14 +159,7 @@
 
             $('.disable', tb).click(function() {
                 disableDesignMode();
-                var edm = $('<a class="srte-edm" href="#">Enable design mode</a>');
-                tb.empty().append(edm);
-                edm.click(function(e){
-                    e.preventDefault();
-                    enableDesignMode();
-                    // remove, for good measure
-                    $(this).remove();
-                });
+                enableDesignModeButton( tb );                
                 return false;
             });
 
@@ -196,6 +190,17 @@
 
             return tb;
         };
+
+        function enableDesignModeButton( tb ){
+            var edm = $('<a class="srte-edm" href="#">Enable design mode</a>');
+            tb.empty().append(edm);
+            edm.click(function(e){
+                e.preventDefault();
+                enableDesignMode();
+                // remove, for good measure
+                $(this).remove();
+            });
+        }
 
         function formatText(command, option) {
             iframe.contentWindow.focus();
@@ -249,17 +254,21 @@
         
         // enable design mode now
         enableDesignMode();
+        if( options.design_mode === false ){        
+            disableDesignMode();
+            enableDesignModeButton( tb );
+        }
 
     }); //return this.each    
     
-    }; // rte
+    }; // srte
 
     // defautl options
     $.fn.srte.options = {
-        media_url: "images/",
-        content_css_url: "rte.css",        
+        media_url: "images/",               
         max_height: 350,
-        iframe_height : 150
+        iframe_height : 150,
+        design_mode : true
     }
 
 })(jQuery,window, document);
