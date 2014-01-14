@@ -135,29 +135,43 @@
                     <a href='#' class='disable'><img src='"+options.media_url+"close.gif' alt='close rte' /></a>\
                 </p></div></div>");
 
-            $('select', tb).change(function(){
+            tb.on('change', 'select', function(){
                 var index = this.selectedIndex;
                 if( index!=0 ) {
                     var selected = this.options[index].value;
                     formatText("formatblock", '<'+selected+'>');
                 }
-            });
-            $('.bold', tb).click(function(){ formatText('bold');return false; });
-            $('.italic', tb).click(function(){ formatText('italic');return false; });
-            $('.unorderedlist', tb).click(function(){ formatText('insertunorderedlist');return false; });
-            $('.link', tb).click(function(){
+            });            
+            tb.on( 'click', '.bold', function(e){                            
+                formatText('bold');                 
+                return false;
+            } );
+            tb.on( 'click', '.italic', function(e){                            
+                formatText('italic'); 
+                return false;
+            } );
+            tb.on('click', '.unorderedlist', function(e){
+                e.preventDefault();
+                formatText('insertunorderedlist');
+                return false;
+            } );
+            tb.on('click','.link',function(e){
+                e.preventDefault();
                 var p=prompt("URL:");
-                if(p)
+                if(p){
                     formatText('CreateLink', p);
-                return false; });
-
-            $('.image', tb).click(function(){
+                }
+                return false;
+            });            
+            tb.on('click','.image',function(e){
+                e.preventDefault();
                 var p=prompt("image URL:");
                 if(p)
                     formatText('InsertImage', p);
-                return false; });
-
-            $('.disable', tb).click(function() {
+                return false;
+            });            
+            tb.on('click','.disable', function(e){
+                e.preventDefault();
                 disableDesignMode();
                 enableDesignModeButton( tb );                
                 return false;
