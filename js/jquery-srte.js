@@ -125,16 +125,15 @@
                     </select>\
                 </p>\
                 <p>\
-                    <a href='#' class='bold'><img src='"+options.media_url+"bold.gif' alt='bold' /></a>\
-                    <a href='#' class='italic'><img src='"+options.media_url+"italic.gif' alt='italic' /></a>\
+                    <a href='#' class='bold'><img src='"+options.media_url+"bold.gif' data-command='bold' alt='bold' /></a>\
+                    <a href='#' class='italic'><img src='"+options.media_url+"italic.gif' data-command='italic' alt='italic' /></a>\
                 </p>\
                 <p>\
-                    <a href='#' class='unorderedlist'><img src='"+options.media_url+"unordered.gif' alt='unordered list' /></a>\
-                    <a href='#' class='link'><img src='"+options.media_url+"link.png' alt='link' /></a>\
-                    <a href='#' class='image'><img src='"+options.media_url+"image.png' alt='image' /></a>\
-                    <a href='#' class='disable'><img src='"+options.media_url+"close.gif' alt='close rte' /></a>\
-                </p></div></div>");
-
+                    <a href='#' class='unorderedlist'><img src='"+options.media_url+"unordered.gif' data-command='insertunorderedlist'  alt='unordered list' /></a>\
+                    <a href='#' class='link'><img src='"+options.media_url+"link.png' data-command='CreateLink' alt='link' /></a>\
+                    <a href='#' class='image'><img src='"+options.media_url+"image.png' data-command='InsertImage' alt='image' /></a>\
+                    <a href='#' class='disable'><img src='"+options.media_url+"close.gif' data-command='disable' alt='close rte' /></a>\
+                </p></div></div>");            
             tb.on('change', 'select', function(){
                 var index = this.selectedIndex;
                 if( index!=0 ) {
@@ -142,40 +141,23 @@
                     formatText("formatblock", '<'+selected+'>');
                 }
             });            
-            tb.on( 'click', '.bold', function(e){                            
-                formatText('bold');                 
-                return false;
-            } );
-            tb.on( 'click', '.italic', function(e){                            
-                formatText('italic'); 
-                return false;
-            } );
-            tb.on('click', '.unorderedlist', function(e){
-                e.preventDefault();
-                formatText('insertunorderedlist');
-                return false;
-            } );
-            tb.on('click','.link',function(e){
-                e.preventDefault();
-                var p=prompt("URL:");
-                if(p){
-                    formatText('CreateLink', p);
+            tb.on( 'click', function(e){
+                var command = $( e.target ).data('command'),
+                    option,
+                    promtText = '';
+                if( command === 'disable' ){
+                    disableDesignMode();
+                    enableDesignModeButton( tb );
+                    return false;
                 }
+                if( command === 'CreateLink' ){
+                    option=prompt("URL:");                
+                }else if( command === 'InsertImage' ){
+                    option=prompt("image URL:");
+                }
+                formatText.call( this, command, option );                        
                 return false;
-            });            
-            tb.on('click','.image',function(e){
-                e.preventDefault();
-                var p=prompt("image URL:");
-                if(p)
-                    formatText('InsertImage', p);
-                return false;
-            });            
-            tb.on('click','.disable', function(e){
-                e.preventDefault();
-                disableDesignMode();
-                enableDesignModeButton( tb );                
-                return false;
-            });
+            } ); 
 
             $(iframe).parents('form').submit(function(){
                 disableDesignMode(true);
